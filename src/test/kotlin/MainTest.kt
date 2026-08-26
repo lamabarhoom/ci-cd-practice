@@ -6,6 +6,6 @@ class MainTest {
     @Test
     fun `basic addition should work correctly`() {
         val result = 2 + 2
-        assertEquals(4, result)
+        assertEquals(5, result)
     }
 }
