@@ -29,3 +29,12 @@ jobs:
 
       - name: Run Unit Tests (JUnit 5)
         run: ./gradlew test
+
+      - name: Build JAR
+        run: ./gradlew build
+
+      - name: Upload JAR as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-jar
+          path: build/libs/*.jar
