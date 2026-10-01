@@ -1,0 +1,44 @@
+name: Telegram PR Notifications
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notify on Pull Request opened/updated
+        if: github.event.action != 'closed'
+        run: |
+          curl -s -X POST https://api.telegram.org/bot${{ secrets.TG_BOT_TOKEN }}/sendMessage \
+            -d chat_id=${{ secrets.TG_CHAT_ID }} \
+            -d parse_mode=HTML \
+            -d text="<b>🔀 Pull Request ${{ github.event.action }}</b>
+          📁 <b>Repo:</b> ${{ github.repository }}
+          👤 <b>By:</b> ${{ github.actor }}
+          🌿 <b>${{ github.event.pull_request.head.ref }}</b> → <b>${{ github.event.pull_request.base.ref }}</b>
+          📝 <b>Title:</b> ${{ github.event.pull_request.title }}
+          🔗 <a href='${{ github.event.pull_request.html_url }}'>View PR</a>"
+
+      - name: Notify on PR Merged
+        if: github.event.action == 'closed' && github.event.pull_request.merged == true
+        run: |
+          curl -s -X POST https://api.telegram.org/bot${{ secrets.TG_BOT_TOKEN }}/sendMessage \
+            -d chat_id=${{ secrets.TG_CHAT_ID }} \
+            -d parse_mode=HTML \
+            -d text="<b>✅ PR Merged</b>
+          📁 <b>Repo:</b> ${{ github.repository }}
+          👤 <b>By:</b> ${{ github.actor }}
+          🌿 <b>${{ github.event.pull_request.head.ref }}</b> → <b>${{ github.event.pull_request.base.ref }}</b>
+          📝 <b>Title:</b> ${{ github.event.pull_request.title }}"
+
+      - name: Notify on PR Closed without merge
+        if: github.event.action == 'closed' && github.event.pull_request.merged == false
+        run: |
+          curl -s -X POST https://api.telegram.org/bot${{ secrets.TG_BOT_TOKEN }}/sendMessage \
+            -d chat_id=${{ secrets.TG_CHAT_ID }} \
+            -d parse_mode=HTML \
+            -d text="<b>❌ PR Closed (not merged)</b>
+          📁 <b>Repo:</b> ${{ github.repository }}
+          📝 <b>Title:</b> ${{ github.event.pull_request.title }}"
