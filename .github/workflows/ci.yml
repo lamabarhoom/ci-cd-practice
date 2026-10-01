@@ -38,3 +38,29 @@ jobs:
         with:
           name: app-jar
           path: build/libs/*.jar
+
+      - name: Notify Telegram on Success
+        if: success()
+        run: |
+          curl -s -X POST https://api.telegram.org/bot${{ secrets.TG_BOT_TOKEN }}/sendMessage \
+            -d chat_id=${{ secrets.TG_CHAT_ID }} \
+            -d parse_mode=HTML \
+            -d text="<b>✅ CI Passed</b>
+          📁 <b>Repo:</b> ${{ github.repository }}
+          👤 <b>By:</b> ${{ github.actor }}
+          🌿 <b>Branch:</b> ${{ github.ref_name }}
+          💬 <b>Message:</b> ${{ github.event.head_commit.message }}
+          🔗 <a href='${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'>View run</a>"
+
+      - name: Notify Telegram on Failure
+        if: failure()
+        run: |
+          curl -s -X POST https://api.telegram.org/bot${{ secrets.TG_BOT_TOKEN }}/sendMessage \
+            -d chat_id=${{ secrets.TG_CHAT_ID }} \
+            -d parse_mode=HTML \
+            -d text="<b>❌ CI Failed</b>
+          📁 <b>Repo:</b> ${{ github.repository }}
+          👤 <b>By:</b> ${{ github.actor }}
+          🌿 <b>Branch:</b> ${{ github.ref_name }}
+          💬 <b>Message:</b> ${{ github.event.head_commit.message }}
+          🔗 <a href='${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'>View run</a>"
